@@ -7,10 +7,10 @@ use Aws\S3\S3Client;
 use Aws\Rekognition\RekognitionClient;
 
 // aws credentials
-$bucket = "localtestdev";
-$region = "ap-southeast-1";
-$access_key_id = "AKIAXO4Z5UT4L5JY4AN5";
-$secret_access_key = "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";
+$bucket = "";
+$region = "";
+$access_key_id = "";
+$secret_access_key = "";
 
 // s3 client
 $s3 = new S3Client([
