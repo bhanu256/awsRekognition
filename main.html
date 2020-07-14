@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <title>Extract text from img</title>
+    </head>
+    <body>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <script type="text/javascript">
+
+            function processImageUrl(){
+                var imgUrl = document.getElementById('inputURL').value;
+                document.getElementById('procIndicator').style.opacity = "100%";
+
+                // Ajax object
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function(){
+
+                    // Process Indicator
+                    var dots = ""
+                    var interval = setInterval(() => {
+                        if(this.readyState == 4){
+                            clearInterval(interval);
+                            return;
+                        }
+                        dots = (dots.length < 3) ? (dots + ".") : "";
+                        document.getElementById('procIndicator').innerHTML = "Processing" + dots;
+                    }, 500);
+
+                    try{
+                        // successful execution
+                        if(this.readyState == 4 && this.status == 200){
+                            var response = JSON.parse(this.responseText);
+                            var resultText = "";
+                            for(x of Object.values(response['result'])){
+                                if(x.Type == "LINE"){
+                                    resultText += x.DetectedText + "\n";
+                                }
+                            }
+
+                            document.getElementById('resultArea').innerHTML = resultText;
+                            document.getElementById('procIndicator').innerHTML = "DONE."
+                        }
+                        // internal server error
+                        else if(this.status == 500){
+                            throw "server error!!"
+                        }
+                    }
+                    catch(err){
+                        // exception handler
+                        alert("Error processing image!! Try again.")
+                        document.getElementById('procIndicator').innerHTML = "Error!"
+                    }
+                }
+                xmlHttp.open("POST", "recognize.php", true);
+                xmlHttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                xmlHttp.send("imgUrl="+imgUrl);
+            }
+        </script>
+
+        <h1>Extract text from image files:</h1>
+        <p>Enter the URL of image file to get <strong>text</strong><br>Supported image formats are jpg and png</p>
+        <br><br>
+
+        <div id="wrapper" style="display: flex;">
+
+            <!-- Input Div-->
+            <div id="inputDiv" style="flex: 50%;">
+                <h3>Image URL to extract text</h3>
+                <form action="" onsubmit="processImageUrl(); return false;">
+                    <input type="text" id="inputURL" placeholder="Please enter img url" value=""/>
+                    <button type="submit">Submit</button>
+
+                    <p id="procIndicator" style="opacity: 0%;">Processing</p>
+                </form>
+            </div>
+
+            <!-- Output Div-->
+            <div id="outputDiv" style="flex: 50%;">
+                <h3>Extracted Text</h3>
+                <textarea id="resultArea" class="UIInput" style="width:80%; height:400px;"></textarea>
+            </div>
+        </div>
+
+    </body>
+</html>
